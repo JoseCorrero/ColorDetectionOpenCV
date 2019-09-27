@@ -10,15 +10,12 @@ using namespace cv;
 class CameraManager {
 public:
 
-	// Constructors
 	CameraManager() {}
 	CameraManager(int);
 
-	// Observers
 	bool isOpened() const;
 	double getProperty(int) const;
 
-	// Modifiers
 	bool openCamera(int);
 	void releaseCamera();
 	bool getFrame(Mat&);
@@ -26,7 +23,7 @@ public:
 
 private:
 
-	VideoCapture camera;
+	VideoCapture camera_;
 
 };
 

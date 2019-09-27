@@ -1,35 +1,35 @@
 #include "CameraManager.h"
 
 CameraManager::CameraManager(int device) {
-	camera.open(device);
+	camera_ = VideoCapture(device);
 }
 
 bool CameraManager::isOpened() const
 {
-	return camera.isOpened();
+	return camera_.isOpened();
 }
 
 double CameraManager::getProperty(int propId) const
 {
-	return camera.get(propId);
+	return camera_.get(propId);
 }
 
 bool CameraManager::openCamera(int device)
 {
-	return camera.open(device);
+	return camera_.open(device);
 }
 
 void CameraManager::releaseCamera()
 {
-	camera.release();
+	camera_.release();
 }
 
 bool CameraManager::getFrame(Mat& frame)
 {
-	return camera.read(frame);
+	return camera_.read(frame);
 }
 
 bool CameraManager::setProperty(int propId, double value)
 {
-	return camera.set(propId, value);
+	return camera_.set(propId, value);
 }
