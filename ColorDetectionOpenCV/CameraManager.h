@@ -5,26 +5,27 @@
 
 #include "opencv2/opencv.hpp"
 
-using namespace cv;
+namespace cm {
 
-class CameraManager {
-public:
+	class CameraManager {
+	public:
 
-	CameraManager() {}
-	CameraManager(int);
+		CameraManager() {}
+		CameraManager(int);
 
-	bool isOpened() const;
-	double getProperty(int) const;
+		bool isOpened() const;
+		double getProperty(int) const;
 
-	bool openCamera(int);
-	void releaseCamera();
-	bool getFrame(Mat&);
-	bool setProperty(int, double);
+		bool openCamera(int);
+		void releaseCamera();
+		bool getFrame(cv::Mat&);
+		bool setProperty(int, double);
 
-private:
+	private:
 
-	VideoCapture camera_;
+		cv::VideoCapture camera_;
 
-};
+	};
+}
 
 #endif

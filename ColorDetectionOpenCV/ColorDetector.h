@@ -7,53 +7,53 @@
 
 #include "opencv2/opencv.hpp"
 
-using namespace cv;
-using namespace std;
-
 struct ColorRange {
 
-	int iLowH;
-	int iHighH;
+	int lowH;
+	int highH;
 
-	int iLowS;
-	int iHighS;
+	int lowS;
+	int highS;
 
-	int iLowV;
-	int iHighV;
+	int lowV;
+	int highV;
 };
 
-class ColorDetector {
-public:
+namespace cd {
 
-	ColorDetector(ColorRange&);
+	class ColorDetector {
+	public:
 
-	static void setCameraManager(CameraManager&);
-	static void showCannyTrackbar();
-	static void prepareFrame();
+		ColorDetector() {}
+		ColorDetector(ColorRange);
 
-	void detectColor();
-	Point2f findPosition();
+		static void setCameraManager(cm::CameraManager&);
+		static void showCannyTrackbar();
+		static void prepareFrame();
 
-	static inline const Mat& getFrame() { return frame_; }
-	static inline const Mat& getHsv() { return hsv_; }
+		void detectColor();
+		cv::Point2f findPosition();
 
-	inline const Mat& getBinaryMask() const { return binaryMask_; }
-	inline const Mat& getCannyMask() const { return cannyMask_; }
-	inline const vector<vector<Point>>& getContours() const { return contours_; }
+		static inline const cv::Mat& getFrame() { return frame_; }
+		static inline const cv::Mat& getHsv() { return hsv_; }
 
-private:
+		inline const cv::Mat& getBinaryMask() const { return binaryMask_; }
+		inline const cv::Mat& getCannyMask() const { return cannyMask_; }
+		inline const std::vector<std::vector<cv::Point>>& getContours() const { return contours_; }
 
-	// Compartido por todas las instancias de la clase.
-	static CameraManager& cameraManager_;
-	static Mat frame_, hsv_;
-	static int lowThreshold_, highThreshold_;
+	private:
 
-	// Propios de cada instancia.
-	Mat binaryMask_, cannyMask_;
-	vector<vector<Point>> contours_;
-	vector<Vec4i> hierarchy_;
-	ColorRange& color_;
+		// Compartido por todas las instancias de la clase.
+		static cm::CameraManager& cameraManager_;
+		static cv::Mat frame_, hsv_;
+		static int lowThreshold_, highThreshold_;
 
-};
+		// Propios de cada instancia.
+		cv::Mat binaryMask_, cannyMask_;
+		std::vector<std::vector<cv::Point>> contours_;
+		std::vector<cv::Vec4i> hierarchy_;
+		ColorRange color_;
 
+	};
+}
 #endif
