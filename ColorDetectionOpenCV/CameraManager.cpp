@@ -1,5 +1,10 @@
 #include "CameraManager.h"
 
+using namespace cv;
+
+// namespace CameraManager
+using namespace cm;
+
 CameraManager::CameraManager(int device) {
 	camera_ = VideoCapture(device);
 }
