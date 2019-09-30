@@ -9,7 +9,7 @@ using namespace cm;
 
 extern CameraManager cameraManager;
 
-static map<char*, cd::ColorDetector> colorDetectors;
+static map<const char*, cd::ColorDetector> colorDetectors;
 
 static cd::ColorDetector& colorDetector = cd::ColorDetector();
 
@@ -33,7 +33,7 @@ void prepareFrame()
 	cd::ColorDetector::prepareFrame();
 }
 
-bool select(char* id)
+bool select(const char* id)
 {
 	auto cD = colorDetectors.find(id);
 	if (cD != colorDetectors.end())
