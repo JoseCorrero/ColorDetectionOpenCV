@@ -13,7 +13,7 @@ static map<const char*, cd::ColorDetector> colorDetectors;
 
 static cd::ColorDetector& colorDetector = cd::ColorDetector();
 
-void ColorDetector(char* id, ColorRange color)
+void ColorDetector(const char* id, ColorRange color)
 {
 	colorDetectors.insert({id, cd::ColorDetector(color)});
 }
