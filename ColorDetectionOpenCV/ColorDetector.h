@@ -40,6 +40,7 @@ namespace cd {
 		inline const cv::Mat& getBinaryMask() const { return binaryMask_; }
 		inline const cv::Mat& getCannyMask() const { return cannyMask_; }
 		inline const std::vector<std::vector<cv::Point>>& getContours() const { return contours_; }
+		inline const ColorRange& getColor() const { return color_; }
 
 	private:
 

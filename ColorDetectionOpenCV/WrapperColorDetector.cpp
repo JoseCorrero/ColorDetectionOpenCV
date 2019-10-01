@@ -1,5 +1,6 @@
 #include "WrapperColorDetector.h"
 
+#include <string>
 #include <map>
 
 using namespace std;
@@ -9,13 +10,16 @@ using namespace cm;
 
 extern CameraManager cameraManager;
 
-static map<const char*, cd::ColorDetector> colorDetectors;
+map<string, cd::ColorDetector> colorDetectors;
 
-static cd::ColorDetector& colorDetector = cd::ColorDetector();
+cd::ColorDetector& colorDetector = cd::ColorDetector();
 
-void ColorDetector(const char* id, ColorRange color)
+int ColorDetector(const char* id, ColorRange color)
 {
-	colorDetectors.insert({id, cd::ColorDetector(color)});
+	if(colorDetectors.insert({ string(id), cd::ColorDetector(color) }).second)
+		return 1;
+	else
+		return 0;
 }
 
 void setCameraManager()
@@ -33,16 +37,16 @@ void prepareFrame()
 	cd::ColorDetector::prepareFrame();
 }
 
-bool select(const char* id)
+int select(const char* id)
 {
-	auto cD = colorDetectors.find(id);
+	auto cD = colorDetectors.find(string(id));
 	if (cD != colorDetectors.end())
 	{
 		colorDetector = cD->second;
-		return true;
+		return 1;
 	}
 	else
-		return false;
+		return 0;
 }
 
 void detectColor()
