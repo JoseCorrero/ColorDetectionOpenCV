@@ -58,21 +58,59 @@ void ColorDetector::detectColor()
 
 Point2f ColorDetector::findPosition()
 {
-	cvtColor(binaryMask_, binaryMask_, COLOR_GRAY2BGRA);
+	Mat kernel = Mat::ones(3, 3, CV_32F);
+	morphologyEx(binaryMask_, binaryMask_, cv::MORPH_OPEN, kernel);
+	morphologyEx(binaryMask_, binaryMask_, cv::MORPH_DILATE, kernel);
+
+	cvtColor(binaryMask_, binaryMask_, CV_GRAY2BGRA);
 	Canny(binaryMask_, cannyMask_, lowThreshold_, highThreshold_);
 
-	findContours(cannyMask_, contours_, hierarchy_, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_SIMPLE);
+	vector<vector<Point>> contours;
+	vector<Vec4i> hierarchy;
+	
+	findContours(cannyMask_, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);
 
-	if (contours_.size() > 0)
+	vector<Point> result;
+	vector<Point> pts;
+	for (size_t i = 0; i < contours.size(); i++)
 	{
-		// Utiliza el primer contorno.
-		// Implementar búsqueda del contorno más prometedor.
-		vector<Point>& contour = contours_[0];
-		
-		Moments m = moments(contour, false);
-
-		return Point2f(m.m10 / m.m00, m.m01 / m.m00);
+		convexHull(contours[i], result);
+		contours[i] = result;
 	}
 
-	return Point2f();
+	Point2f point(7, 19);
+
+	if (contours.size() > 0)
+	{
+		int index = findBestContour(contours);
+		if (index >= 0)
+		{
+			Rect br = boundingRect(contours[index]);
+
+			point.x = br.x + br.width / 2;
+			point.y = br.y + br.height / 2;
+
+			circle(frame_, { (int)point.x, (int)point.y }, 7, (255, 255, 255), -1);
+			putText(frame_, to_string(index), { (int)point.x - 20, (int)point.y - 20 },
+				FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2);
+		}
+	}
+
+	return point;
+}
+
+int ColorDetector::findBestContour(vector<vector<Point>>& contours) const
+{
+	int biggest_contour_index = -1;
+	double biggest_area = 0.0;
+
+	for (int i = 0; i < contours.size(); i++) {
+		double area = contourArea(contours[i], false);
+		if (area > biggest_area) {
+			biggest_area = area;
+			biggest_contour_index = i;
+		}
+	}
+
+	return biggest_contour_index;
 }

@@ -39,10 +39,11 @@ namespace cd {
 
 		inline const cv::Mat& getBinaryMask() const { return binaryMask_; }
 		inline const cv::Mat& getCannyMask() const { return cannyMask_; }
-		inline const std::vector<std::vector<cv::Point>>& getContours() const { return contours_; }
 		inline const ColorRange& getColor() const { return color_; }
 
 	private:
+
+		int findBestContour(std::vector<std::vector<cv::Point>>&) const;
 
 		// Compartido por todas las instancias de la clase.
 		static cm::CameraManager& cameraManager_;
@@ -51,8 +52,6 @@ namespace cd {
 
 		// Propios de cada instancia.
 		cv::Mat binaryMask_, cannyMask_;
-		std::vector<std::vector<cv::Point>> contours_;
-		std::vector<cv::Vec4i> hierarchy_;
 		ColorRange color_;
 
 	};
