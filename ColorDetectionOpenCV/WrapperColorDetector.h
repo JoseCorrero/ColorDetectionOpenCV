@@ -17,6 +17,10 @@ extern "C" __declspec(dllexport) int select(const char*);
 
 extern "C" __declspec(dllexport) void detectColor();
 
-extern "C" __declspec(dllexport) cv::Point2f findPosition();
+extern "C" __declspec(dllexport) void findPosition(float*, float*);
+
+extern "C" __declspec(dllexport) void imwrite(const char*, int);
+
+extern "C" __declspec(dllexport) void imshow(const char*, int);
 
 #endif

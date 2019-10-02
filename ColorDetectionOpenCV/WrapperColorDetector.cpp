@@ -10,9 +10,9 @@ using namespace cm;
 
 extern CameraManager cameraManager;
 
-map<string, cd::ColorDetector> colorDetectors;
+static map<string, cd::ColorDetector> colorDetectors;
 
-cd::ColorDetector& colorDetector = cd::ColorDetector();
+static cd::ColorDetector& colorDetector = cd::ColorDetector();
 
 int ColorDetector(const char* id, ColorRange color)
 {
@@ -54,7 +54,31 @@ void detectColor()
 	colorDetector.detectColor();
 }
 
-cv::Point2f findPosition()
+void findPosition(float* x, float* y)
 {
-	return colorDetector.findPosition();
+	cv::Point2f point = colorDetector.findPosition();
+
+	*x = point.x;
+	*y = point.y;
+}
+
+void imwrite(const char* route, int printFrame)
+{
+	if (printFrame == 1)
+		cv::imwrite("C:/Users/Jose/Desktop/frame.jpeg", colorDetector.getFrame());
+
+	cv::imwrite(string(route), colorDetector.getCannyMask());
+}
+
+void imshow(const char* id, int printFrame)
+{
+	if (printFrame == 1)
+	{
+		cv::namedWindow("Frame", CV_WINDOW_AUTOSIZE);
+		cv::imshow("Frame", colorDetector.getFrame());
+	}
+	
+	string name(id);
+	cv::namedWindow(name, CV_WINDOW_AUTOSIZE);
+	cv::imshow(name, colorDetector.getCannyMask());
 }
