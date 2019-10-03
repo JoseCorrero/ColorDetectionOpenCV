@@ -7,6 +7,8 @@
 
 extern "C" __declspec(dllexport) int ColorDetector(const char*, ColorRange);
 
+extern "C" __declspec(dllexport) int removeColorDetector(const char*);
+
 extern "C" __declspec(dllexport) void setCameraManager();
 
 extern "C" __declspec(dllexport) void showCannyTrackbar();

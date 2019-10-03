@@ -22,6 +22,11 @@ int ColorDetector(const char* id, ColorRange color)
 		return 0;
 }
 
+int removeColorDetector(const char* id)
+{
+	return colorDetectors.erase(string(id));
+}
+
 void setCameraManager()
 {
 	cd::ColorDetector::setCameraManager(cameraManager);
