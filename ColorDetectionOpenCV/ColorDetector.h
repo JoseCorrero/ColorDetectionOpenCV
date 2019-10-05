@@ -32,13 +32,14 @@ namespace cd {
 		static void prepareFrame();
 
 		void detectColor();
-		cv::Point2f findPosition();
+		void findPosition();
 
 		static inline const cv::Mat& getFrame() { return frame_; }
 		static inline const cv::Mat& getHsv() { return hsv_; }
 
 		inline const cv::Mat& getBinaryMask() const { return binaryMask_; }
 		inline const cv::Mat& getCannyMask() const { return cannyMask_; }
+		inline const cv::Point& getPoint() const { return point_; }
 		inline const ColorRange& getColor() const { return color_; }
 
 	private:
@@ -52,6 +53,7 @@ namespace cd {
 
 		// Propios de cada instancia.
 		cv::Mat binaryMask_, cannyMask_;
+		cv::Point point_;
 		ColorRange color_;
 
 	};

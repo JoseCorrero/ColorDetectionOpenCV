@@ -16,7 +16,7 @@ Mat ColorDetector::hsv_ = Mat();
 int ColorDetector::lowThreshold_ = 85;
 int ColorDetector::highThreshold_ = 255;
 
-ColorDetector::ColorDetector(ColorRange color) : color_(color)
+ColorDetector::ColorDetector(ColorRange color) : color_(color), point_(Point())
 {}
 
 void ColorDetector::setCameraManager(CameraManager& cam)
@@ -56,7 +56,7 @@ void ColorDetector::detectColor()
 			Scalar(color_.highH, color_.highS, color_.highV), binaryMask_);
 }
 
-Point2f ColorDetector::findPosition()
+void ColorDetector::findPosition()
 {
 	Mat kernel = Mat::ones(3, 3, CV_32F);
 	morphologyEx(binaryMask_, binaryMask_, cv::MORPH_OPEN, kernel);
@@ -70,33 +70,30 @@ Point2f ColorDetector::findPosition()
 	
 	findContours(cannyMask_, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);
 
-	vector<Point> result;
-	vector<Point> pts;
-	for (size_t i = 0; i < contours.size(); i++)
-	{
-		convexHull(contours[i], result);
-		contours[i] = result;
-	}
-
-	Point2f point(7, 19);
-
 	if (contours.size() > 0)
 	{
+		vector<Point> result;
+		
+		for (size_t i = 0; i < contours.size(); i++)
+		{
+			convexHull(contours[i], result);
+			contours[i] = result;
+		}
+
 		int index = findBestContour(contours);
 		if (index >= 0)
 		{
 			Rect br = boundingRect(contours[index]);
 
-			point.x = br.x + br.width / 2;
-			point.y = br.y + br.height / 2;
+			point_.x = br.x + br.width / 2;
+			point_.y = br.y + br.height / 2;
 
-			circle(frame_, { (int)point.x, (int)point.y }, 7, (255, 255, 255), -1);
-			putText(frame_, to_string(index), { (int)point.x - 20, (int)point.y - 20 },
-				FONT_HERSHEY_SIMPLEX, 0.5, (255, 255, 255), 2);
+			return;
 		}
 	}
 
-	return point;
+	point_.x = -1;
+	point_.y = -1;
 }
 
 int ColorDetector::findBestContour(vector<vector<Point>>& contours) const
