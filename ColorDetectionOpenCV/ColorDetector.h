@@ -27,18 +27,19 @@ namespace cd {
 		ColorDetector() {}
 		ColorDetector(ColorRange);
 
-		static void setCameraManager(cm::CameraManager&);
-		static void showCannyTrackbar();
-		static void prepareFrame();
+		static void prepareFrame(cv::Mat&, cv::ColorConversionCodes);
 
 		void detectColor();
+		void improveMask();
 		void findPosition();
 
-		static inline const cv::Mat& getFrame() { return frame_; }
+		static inline void setLowThreshold(int value) { lowThreshold_ = value; }
+		static inline void setHighThreshold(int value) { highThreshold_ = value; }
+
 		static inline const cv::Mat& getHsv() { return hsv_; }
 
 		inline const cv::Mat& getBinaryMask() const { return binaryMask_; }
-		inline const cv::Mat& getCannyMask() const { return cannyMask_; }
+		inline const cv::Mat& getFinalMask() const { return finalMask_; }
 		inline const cv::Point& getPoint() const { return point_; }
 		inline const ColorRange& getColor() const { return color_; }
 
@@ -47,12 +48,11 @@ namespace cd {
 		int findBestContour(std::vector<std::vector<cv::Point>>&) const;
 
 		// Compartido por todas las instancias de la clase.
-		static cm::CameraManager& cameraManager_;
-		static cv::Mat frame_, hsv_;
+		static cv::Mat hsv_;
 		static int lowThreshold_, highThreshold_;
 
 		// Propios de cada instancia.
-		cv::Mat binaryMask_, cannyMask_;
+		cv::Mat binaryMask_, finalMask_;
 		cv::Point point_;
 		ColorRange color_;
 

@@ -10,8 +10,6 @@ using namespace cm;
 // namespace ColorDetector
 using namespace cd;
 
-CameraManager& ColorDetector::cameraManager_ = CameraManager();
-Mat ColorDetector::frame_ = Mat();
 Mat ColorDetector::hsv_ = Mat();
 int ColorDetector::lowThreshold_ = 85;
 int ColorDetector::highThreshold_ = 255;
@@ -19,23 +17,18 @@ int ColorDetector::highThreshold_ = 255;
 ColorDetector::ColorDetector(ColorRange color) : color_(color), point_(Point())
 {}
 
-void ColorDetector::setCameraManager(CameraManager& cam)
-{
-	cameraManager_ = cam;
-}
-
+/*
 void ColorDetector::showCannyTrackbar()
 {
 	static string windowName = "Canny Values";
 	namedWindow(windowName);
 	createTrackbar("Low threshold:", windowName, &lowThreshold_, 255);
 	createTrackbar("High threshold:", windowName, &highThreshold_, 255);
-}
+}*/
 
-void ColorDetector::prepareFrame()
+void ColorDetector::prepareFrame(Mat& frame, cv::ColorConversionCodes code)
 {	
-	if(cameraManager_.getFrame(frame_))
-		cvtColor(frame_, hsv_, COLOR_BGR2HSV);
+	cvtColor(frame, hsv_, code);
 }
 
 void ColorDetector::detectColor()
@@ -56,19 +49,22 @@ void ColorDetector::detectColor()
 			Scalar(color_.highH, color_.highS, color_.highV), binaryMask_);
 }
 
-void ColorDetector::findPosition()
+void ColorDetector::improveMask()
 {
 	Mat kernel = Mat::ones(3, 3, CV_32F);
 	morphologyEx(binaryMask_, binaryMask_, cv::MORPH_OPEN, kernel);
 	morphologyEx(binaryMask_, binaryMask_, cv::MORPH_DILATE, kernel);
 
 	cvtColor(binaryMask_, binaryMask_, CV_GRAY2BGRA);
-	Canny(binaryMask_, cannyMask_, lowThreshold_, highThreshold_);
+	Canny(binaryMask_, finalMask_, lowThreshold_, highThreshold_);
+}
 
+void ColorDetector::findPosition()
+{
 	vector<vector<Point>> contours;
 	vector<Vec4i> hierarchy;
-	
-	findContours(cannyMask_, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);
+
+	findContours(finalMask_, contours, hierarchy, CV_RETR_EXTERNAL, CV_CHAIN_APPROX_NONE);
 
 	if (contours.size() > 0)
 	{
