@@ -5,26 +5,28 @@
 
 #include "ColorDetector.h"
 
+struct Color32 {
+
+	uchar r;
+	uchar g;
+	uchar b;
+	uchar a;
+};
+
 extern "C" __declspec(dllexport) int ColorDetector(const char*, ColorRange);
 
 extern "C" __declspec(dllexport) int removeColorDetector(const char*);
 
-extern "C" __declspec(dllexport) void setCameraManager();
+extern "C" __declspec(dllexport) int prepareImage(Color32*, int, int);
 
-extern "C" __declspec(dllexport) void showCannyTrackbar();
+extern "C" __declspec(dllexport) int prepareCameraImage();
 
-extern "C" __declspec(dllexport) void prepareFrame();
-
-extern "C" __declspec(dllexport) int select(const char*);
-
-extern "C" __declspec(dllexport) void detectColor();
-
-extern "C" __declspec(dllexport) void findPosition(int*, int*);
-
+extern "C" __declspec(dllexport) int detectColorPosition(const char*, int*, int*);
+/*
 extern "C" __declspec(dllexport) void imwrite(const char*);
 
 extern "C" __declspec(dllexport) void writeFrame();
-
+*/
 extern "C" __declspec(dllexport) void imshow(const char*);
 
 extern "C" __declspec(dllexport) void showFrame();

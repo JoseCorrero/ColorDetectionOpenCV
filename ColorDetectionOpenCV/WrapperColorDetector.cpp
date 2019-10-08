@@ -4,22 +4,25 @@
 #include <map>
 
 using namespace std;
+using namespace cv;
 
 // namespace CameraManager
 using namespace cm;
 
-extern CameraManager cameraManager;
+static CameraManager cM;
 
 static map<string, cd::ColorDetector> colorDetectors;
 
-static cd::ColorDetector& colorDetector = cd::ColorDetector();
+static Mat frame;
+
+CameraManager& cameraManager = cM;
 
 int ColorDetector(const char* id, ColorRange color)
 {
 	if(colorDetectors.insert({ string(id), cd::ColorDetector(color) }).second)
 		return 1;
-	else
-		return 0;
+	
+	return 0;
 }
 
 int removeColorDetector(const char* id)
@@ -27,77 +30,89 @@ int removeColorDetector(const char* id)
 	return (int)colorDetectors.erase(string(id));
 }
 
-void setCameraManager()
+int prepareFrame(Mat& frame, ColorConversionCodes code)
 {
-	cd::ColorDetector::setCameraManager(cameraManager);
-}
-
-void showCannyTrackbar()
-{
-	cd::ColorDetector::showCannyTrackbar();
-}
-
-void prepareFrame()
-{
-	cd::ColorDetector::prepareFrame();
-}
-
-int select(const char* id)
-{
-	auto cD = colorDetectors.find(string(id));
-	if (cD != colorDetectors.end())
+	if (!frame.empty())
 	{
-		colorDetector = cD->second;
+		cd::ColorDetector::prepareFrame(frame, code);
 		return 1;
 	}
-	else
-		return 0;
+	
+	return 0;
 }
 
-void detectColor()
+int prepareImage(Color32* image, int height, int width)
 {
-	colorDetector.detectColor();
+	Mat frame = Mat(height, width, CV_8UC4, image);
+	
+	return prepareFrame(frame, COLOR_RGB2HSV);
 }
 
-void findPosition(int* x, int* y)
+int prepareCameraImage()
 {
-	colorDetector.findPosition();
+	cameraManager.getFrame(frame);
 
-	*x = colorDetector.getPoint().x;
-	*y = colorDetector.getPoint().y;
+	return prepareFrame(frame, COLOR_BGR2HSV);
 }
 
+int detectColorPosition(const char* id, int* x, int* y)
+{
+	auto pair = colorDetectors.find(string(id));
+	if (pair != colorDetectors.end())
+	{
+		cd::ColorDetector& cD = pair->second;
+		cD.detectColor();
+		cD.improveMask();
+		cD.findPosition();
+
+		*x = cD.getPoint().x;
+		*y = cD.getPoint().y;
+
+		return 1;
+	}
+	
+	return 0;
+}
+
+/*
 void imwrite(const char* id)
 {
 	cv::Mat mat = colorDetector.getCannyMask().clone();
 	cv::circle(mat, { colorDetector.getPoint().x, colorDetector.getPoint().y }, 7, (255, 255, 255), -1);
 
-	cv::imwrite("../images/" + string(id) + ".jpeg", mat);
+	imwrite("../images/" + string(id) + ".jpeg", mat);
 }
 
 void writeFrame()
 {
-	cv::imwrite("../images/frame.jpeg", cd::ColorDetector::getFrame());
+	imwrite("../images/frame.jpeg", cd::ColorDetector::getFrame());
 }
-
+*/
 void imshow(const char* id)
 {
-	cv::Mat mat(colorDetector.getCannyMask().clone());
-	cv::circle(mat, { colorDetector.getPoint().x, colorDetector.getPoint().y }, 7, (255, 255, 255), -1);
-	
-	string name(id);
-	cv::namedWindow(name, cv::WINDOW_AUTOSIZE);
-	cv::imshow(name, mat);
+	auto pair = colorDetectors.find(string(id));
+	if (pair != colorDetectors.end())
+	{
+		cd::ColorDetector& colorDetector = pair->second;
+		Mat mat(colorDetector.getFinalMask().clone());
+		circle(mat, { colorDetector.getPoint().x, colorDetector.getPoint().y }, 7, (255, 255, 255), -1);
+		putText(mat, string(id), { colorDetector.getPoint().x, colorDetector.getPoint().y }, 
+			FONT_HERSHEY_PLAIN,	1, Scalar(120, 120, 255));
+
+		string name(id);
+		namedWindow(name, cv::WINDOW_AUTOSIZE);
+		imshow(name, mat);
+	}
 }
 
 void showFrame()
 {
 	string name("Frame");
-	cv::namedWindow(name, cv::WINDOW_AUTOSIZE);
-	cv::imshow(name, cd::ColorDetector::getFrame());
+	namedWindow(name, cv::WINDOW_AUTOSIZE);
+	imshow(name, frame);
 }
 
 void destroyWindow(const char* id)
 {
-	cv::destroyWindow(string(id));
+	destroyWindow(string(id));
 }

@@ -3,7 +3,7 @@
 
 using namespace cv;
 
-cm::CameraManager cameraManager;
+extern cm::CameraManager& cameraManager;
 
 void CameraManager(int device)
 {
